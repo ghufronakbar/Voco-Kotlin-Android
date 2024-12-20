@@ -1,0 +1,3 @@
+package com.example.voco.model
+
+data class ApiRes()

@@ -1,0 +1,52 @@
+package com.example.voco
+
+import android.os.Bundle
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import com.bumptech.glide.Glide
+
+class DetailProductActivity : AppCompatActivity() {
+
+    private lateinit var ivProductDetail: ImageView
+    private lateinit var tvBrandDetail: TextView
+    private lateinit var tvVariantDetail: TextView
+    private lateinit var tvExpiredDateDetail: TextView
+    private lateinit var tvProductText: TextView
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_detail_product)
+
+        ivProductDetail = findViewById(R.id.ivProductDetail)
+        tvBrandDetail = findViewById(R.id.tvBrandDetail)
+        tvVariantDetail = findViewById(R.id.tvVariantDetail)
+        tvExpiredDateDetail = findViewById(R.id.tvExpiredDateDetail)
+        tvProductText = findViewById(R.id.tvProductText)
+
+        // Mendapatkan data yang diteruskan dari RecyclerView Adapter
+        val productId = intent.getStringExtra("productId")
+        val productQrCode = intent.getStringExtra("productQrCode")
+        val productBrand = intent.getStringExtra("productBrand")
+        val productVariant = intent.getStringExtra("productVariant")
+        val productExpiredDate = intent.getStringExtra("productExpiredDate")
+        val productImage = intent.getStringExtra("productImage")
+        val productText = intent.getStringExtra("productText")
+
+        // Menampilkan data pada view
+        tvBrandDetail.text = productBrand
+        tvVariantDetail.text = productVariant
+        tvExpiredDateDetail.text = "Tanggal Kadaluarsa: $productExpiredDate"
+        tvProductText.text = productText
+
+        // Menampilkan gambar dengan Glide
+        Glide.with(this)
+            .load(productImage)
+            .placeholder(R.drawable.placeholder)
+            .error(R.drawable.error_image)
+            .into(ivProductDetail)
+    }
+}

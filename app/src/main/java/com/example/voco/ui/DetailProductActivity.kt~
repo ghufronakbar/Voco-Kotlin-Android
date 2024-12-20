@@ -1,0 +1,96 @@
+package com.example.voco.ui
+
+import android.os.Bundle
+import android.speech.tts.TextToSpeech
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
+import com.bumptech.glide.Glide
+import com.example.voco.R
+import android.speech.tts.TextToSpeech.OnInitListener
+import android.util.Log
+
+class DetailProductActivity : AppCompatActivity(), OnInitListener {
+
+    private lateinit var tvIdDetail: TextView
+    private lateinit var ivProductDetail: ImageView
+    private lateinit var tvBrandDetail: TextView
+    private lateinit var tvVariantDetail: TextView
+    private lateinit var tvExpiredDateDetail: TextView
+    private lateinit var tvProductText: TextView
+    private lateinit var btnTextToSpeech: CardView
+    private lateinit var tvTextToSpeech: TextView
+
+    private var stateIsSpeech = false
+
+    private var textToSpeech: TextToSpeech? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_detail_product)
+
+        tvIdDetail = findViewById(R.id.tvIdDetail)
+        ivProductDetail = findViewById(R.id.ivProductDetail)
+        tvBrandDetail = findViewById(R.id.tvBrandDetail)
+        tvVariantDetail = findViewById(R.id.tvVariantDetail)
+        tvExpiredDateDetail = findViewById(R.id.tvExpiredDateDetail)
+        tvProductText = findViewById(R.id.tvProductText)
+        btnTextToSpeech = findViewById(R.id.btnTextToSpeech)
+        tvTextToSpeech = findViewById(R.id.tvTextToSpeech)
+
+        // Mendapatkan data yang diteruskan dari RecyclerView Adapter
+        val productId = intent.getStringExtra("productId")
+        val productQrCode = intent.getStringExtra("productQrCode")
+        val productBrand = intent.getStringExtra("productBrand")
+        val productVariant = intent.getStringExtra("productVariant")
+        val productExpiredDate = intent.getStringExtra("productExpiredDate")
+        val productImage = intent.getStringExtra("productImage")
+        val productText = intent.getStringExtra("productText")
+
+        tvIdDetail.text = "#$productId"
+        tvBrandDetail.text = productBrand
+        tvVariantDetail.text = productVariant
+        tvExpiredDateDetail.text = "Tanggal Kadaluarsa: $productExpiredDate"
+        tvProductText.text = productText
+
+        textToSpeech = TextToSpeech(this, this)
+
+        Glide.with(this)
+            .load(productImage)
+            .placeholder(R.drawable.placeholder)
+            .error(R.drawable.placeholder)
+            .into(ivProductDetail)
+    }
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            val langResult = textToSpeech?.setLanguage(java.util.Locale("in", "ID"))
+            if (langResult == TextToSpeech.LANG_MISSING_DATA || langResult == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e("CameraActivity", "Bahasa tidak didukung")
+            }
+        } else {
+            Log.e("CameraActivity", "Inisialisasi TTS gagal")
+        }
+    }
+
+    private fun onTextToSpeechPressed() {
+        textToSpeech(tvProductText.text.toString())
+    }
+
+    private fun textToSpeech(text: String) {
+        if (!stateIsSpeech) {
+            stateIsSpeech = true
+            textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+            btnTextToSpeech.setCardBackgroundColor(resources.getColorStateList(R.color.white))
+            tvTextToSpeech.text = "Berhenti membaca"
+            tvTextToSpeech.setTextColor(resources.getColorStateList(R.color.primary))
+        } else {
+            stateIsSpeech = false
+            textToSpeech?.stop()
+            btnTextToSpeech.setCardBackgroundColor(resources.getColorStateList(R.color.primary))
+            tvTextToSpeech.text = "Baca Deskripsi"
+            tvTextToSpeech.setTextColor(resources.getColorStateList(R.color.white))
+        }
+    }
+}
